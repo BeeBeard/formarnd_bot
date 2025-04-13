@@ -66,8 +66,8 @@ async def save_state_text(msg: Message, state: FSMContext):
 r_any.message.register(cmd_start, Command("start"))
 
 # Отработка нажатий кнопок в сообщениях
-r_any.callback_query.register(after_click_cmd_test1, IsCallCmd(BotCmd.cmd_test1))
-r_any.callback_query.register(after_click_cmd_test2, IsCallCmd(BotCmd.cmd_test2))
+# r_any.callback_query.register(after_click_cmd_test1, IsCallCmd(BotCmd.cmd_test1))
+# r_any.callback_query.register(after_click_cmd_test2, IsCallCmd(BotCmd.cmd_test2))
 
 # Отработка state
 r_any.message.register(save_state_text, StateFilter("BotStates:state_test"))

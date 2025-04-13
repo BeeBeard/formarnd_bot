@@ -2,9 +2,10 @@
 
 from typing import Annotated
 
-from sqlalchemy import BigInteger, Boolean, DateTime, text, String
+from sqlalchemy import BigInteger, Boolean, DateTime, text, String, Integer
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 from sqlalchemy.sql import func
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column  # Relationship
 
 from uuid import UUID
 
@@ -48,6 +49,32 @@ class User(Base):  # Parent
             f"first_name={self.first_name!r}, "
             f"last_name={self.last_name!r}, "
             f"language_code={self.language_code!r})"
+        )
+
+class Transaction (Base):  # Parent
+    __tablename__ = "transactions"
+    __table_args__ = {'comment': 'Приход и расход'}
+
+    uid = mapped_column(BigInteger, primary_key=True, unique=True, nullable=False, index=True, autoincrement=True)
+    id = mapped_column(BigInteger, nullable=False, index=True, comment='ID пользователя')
+    number = mapped_column(Integer, nullable=False, comment='Приход или расход')
+    address = mapped_column(String(500), nullable=True, comment='Адрес')
+    project = mapped_column(String(500), nullable=True, comment='Проект')
+    description = mapped_column(String(500), nullable=False, comment='Обязательное описание')
+    comment = mapped_column(String(500), nullable=True, comment='Комментарий')
+    created: Mapped[created]
+    updated: Mapped[updated]
+
+    def __repr__(self) -> str:
+        return (
+            f"User("
+            f"uid={self.uid!r}, "
+            f"id={self.id!r}, "
+            f"number={self.number!r}, "
+            f"address={self.address!r}, "
+            f"project={self.project!r}, "
+            f"description={self.description!r}, "
+            f"comment={self.comment!r})"
         )
 
 
