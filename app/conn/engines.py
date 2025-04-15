@@ -12,10 +12,11 @@ from app.config import CONFIG
 class ConData:
 
     def __init__(self):
-        self.engine = create_engine("sqlite://")
+        self.engine = create_engine(CONFIG.db.conn.get_secret_value())
         self.session = sessionmaker(self.engine)
 
         try:
+
             self.async_engine = create_async_engine(CONFIG.db.async_conn.get_secret_value())
             self.async_session = async_sessionmaker(self.async_engine)
 
