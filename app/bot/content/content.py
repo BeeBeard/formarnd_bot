@@ -25,6 +25,7 @@ class BotCmd:
     no_save = "no_save"
     yes_save = "yes_save"
 
+    clear = "clear"     # Для прекращения ввода данных
     empty = "empty"
 
 
@@ -58,45 +59,19 @@ class BotStates(StatesGroup):
 class BotKeyboards:
     """Класс для создания клавиатур"""
 
-    # @staticmethod
-    # def test_show_menu(value: Union[str, int]) -> InlineKeyboardMarkup:  # Клавиатура под сообщением ботом
-    #     event_menu = InlineKeyboardBuilder()
-    #     event_menu.button(text=BotKeyWords.expense, callback_data=Transform(cmd=BotCmd.cmd_test1, value=value).str)
-    #     event_menu.adjust(1)
-    #     return event_menu.as_markup()
-    #
-    # @staticmethod
-    # def test_show_state() -> InlineKeyboardMarkup:  # Клавиатура под сообщением ботом
-    #     event_menu = InlineKeyboardBuilder()
-    #     event_menu.button(text=BotKeyWords.expense, callback_data=Transform(cmd=BotCmd.cmd_test2).str)
-    #     event_menu.adjust(1)
-    #     return event_menu.as_markup()
-
     @staticmethod
-    def no_address():
+    def get_clear():
         buttons = [[
-            InlineKeyboardButton(
-                text="Не указывать адрес",
-                callback_data=Transform(cmd=BotCmd.no_address).str)
-            ]]
+            InlineKeyboardButton(text="Отменить ввод", callback_data=Transform(cmd=BotCmd.clear).str),
+        ]]
         return InlineKeyboardMarkup(inline_keyboard=buttons)
 
     @staticmethod
     def no_project():
         buttons = [[
-            InlineKeyboardButton(
-                text="Не указывать проект",
-                callback_data=Transform(cmd=BotCmd.no_project).str)
-            ]]
-        return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-    @staticmethod
-    def no_comment():
-        buttons = [[
-            InlineKeyboardButton(
-                text="Не указывать комментарий",
-                callback_data=Transform(cmd=BotCmd.no_comment).str)
-            ]]
+            InlineKeyboardButton(text="Не указывать проект", callback_data=Transform(cmd=BotCmd.no_project).str),
+            InlineKeyboardButton(text="Отменить ввод", callback_data=Transform(cmd=BotCmd.clear).str),
+        ]]
         return InlineKeyboardMarkup(inline_keyboard=buttons)
 
     @staticmethod
@@ -115,9 +90,7 @@ class BotKeyboards:
             KeyboardButton(text=BotKeyWords.expense)
         ], [
             KeyboardButton(text=BotKeyWords.info)
-
-        ]
-        ]
+        ]]
         return ReplyKeyboardMarkup(
             keyboard=kb,
             resize_keyboard=True,
@@ -157,19 +130,16 @@ class BotMessages:
 
         author = f"{username}"
         summ = f"<b>Сумма</b>: {data['number']}\n" if data["number"] else ""
-        address = f"<b>Адрес</b>: {data['address']}\n" if data["address"] else ""
         project = f"<b>Проект</b>: {data['project']}\n" if data["project"] else ""
         description = f"<b>Описание</b>: {data['description']}\n" if data["description"] else ""
-        comment = f"<b>Комментарий</b>: {data['comment']}\n" if data["comment"] else ""
 
         text = (
-            f"<b>Данные для записи:</b>\n"
+            f"<b>Транзакция:</b>\n"
             f"<b>Автор</b>: {author}\n"
-            f"{summ}{address}{project}{description}{comment}"
+            f"{summ}{project}{description}"
         )
 
         return text
-
 
     start = f"Тестовое стартовое сообщений"
 

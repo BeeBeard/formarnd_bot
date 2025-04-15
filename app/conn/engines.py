@@ -12,7 +12,7 @@ from app.config import CONFIG
 class ConData:
 
     def __init__(self):
-        self.engine = create_engine(CONFIG.db.conn.get_secret_value())
+        self.engine = create_engine("sqlite://")
         self.session = sessionmaker(self.engine)
 
         try:

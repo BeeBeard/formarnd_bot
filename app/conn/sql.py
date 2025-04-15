@@ -119,22 +119,52 @@ async def get_user_transaction_info(start_period: datetime, end_period: datetime
             return []
 
 
-async def get_transaction_info(start_period: datetime, end_period: datetime) -> Union[List[tables.Transaction], List]:
+async def get_transaction_info_by_user(user_id: int, start_period: datetime, end_period: datetime) -> Union[List[tables.Transaction], List]:
     """Транзакции сгруппированные по id и description"""
     async with async_engine.connect() as session:
 
         try:
             stmt = (
                 select(
-                    func.sum(tables.Transaction.number).label("number")
+                    tables.Transaction,
+                    tables.User.username
                 )
+                .join(tables.User, tables.Transaction.id == tables.User.id)
+                .filter(
+                    tables.Transaction.updated >= start_period,
+                    tables.Transaction.updated < end_period,
+                    tables.Transaction.id == user_id,
+                )
+                .order_by(tables.Transaction.uid)
 
+            )
+
+            result = await session.execute(stmt)
+
+            return result.all()
+
+        except SQLAlchemyError as e:
+            await session.rollback()
+            logger.error(e)
+            return []
+
+async def get_transaction_info(start_period: datetime, end_period: datetime) -> Union[List[Union[tables.Transaction, tables.User]], List]:
+    """Транзакции сгруппированные по id и description"""
+    async with async_engine.connect() as session:
+
+        try:
+            stmt = (
+                select(
+                    tables.Transaction,
+                    tables.User.username
+                )
+                .join(tables.User, tables.Transaction.id == tables.User.id)
                 .filter(
                     tables.Transaction.updated >= start_period,
                     tables.Transaction.updated < end_period,
                 )
-                .group_by(tables.Transaction.id)
-                .order_by(tables.Transaction.id)
+                .order_by(tables.Transaction.uid)
+
             )
 
             result = await session.execute(stmt)

@@ -3,7 +3,7 @@
 from typing import Annotated
 
 from sqlalchemy import BigInteger, Boolean, DateTime, text, String, Integer
-from sqlalchemy.orm import DeclarativeBase, mapped_column
+# from sqlalchemy.orm import DeclarativeBase, mapped_column
 from sqlalchemy.sql import func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column  # Relationship
 
@@ -58,10 +58,8 @@ class Transaction (Base):  # Parent
     uid = mapped_column(BigInteger, primary_key=True, unique=True, nullable=False, index=True, autoincrement=True)
     id = mapped_column(BigInteger, nullable=False, index=True, comment='ID пользователя')
     number = mapped_column(Integer, nullable=False, comment='Приход или расход')
-    address = mapped_column(String(500), nullable=True, comment='Адрес')
     project = mapped_column(String(500), nullable=True, comment='Проект')
     description = mapped_column(String(500), nullable=False, comment='Обязательное описание')
-    comment = mapped_column(String(500), nullable=True, comment='Комментарий')
     created: Mapped[created]
     updated: Mapped[updated]
 
@@ -71,10 +69,8 @@ class Transaction (Base):  # Parent
             f"uid={self.uid!r}, "
             f"id={self.id!r}, "
             f"number={self.number!r}, "
-            f"address={self.address!r}, "
             f"project={self.project!r}, "
-            f"description={self.description!r}, "
-            f"comment={self.comment!r})"
+            f"description={self.description!r})"
         )
 
 

@@ -15,9 +15,9 @@ DP.callback_query.middleware.register(TForm())
 
 # Список подключаемых роутеров
 routers = [
-    r_private.r_any,
+    # r_private.r_any,
     # r_group.r_any,
-    # r_final.r_any
+    r_final.r_any
 ]
 
 

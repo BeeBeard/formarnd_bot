@@ -1,6 +1,7 @@
 import pprint
 import re
-from typing import List, Union, Dict, Any
+from typing import Union, Dict, Any
+
 from aiogram.fsm.context import FSMContext
 
 
