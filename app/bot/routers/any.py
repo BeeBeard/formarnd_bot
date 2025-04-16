@@ -219,6 +219,7 @@ r_any.message.register(print_info,      F.text == BotKeyWords.info)
 
 # Отработка state
 r_any.message.register(save_number,         StateFilter("BotStates:arrival"))
+r_any.message.register(save_number,         StateFilter("BotStates:expense"))
 r_any.message.register(save_project,        StateFilter("BotStates:project"))
 r_any.message.register(save_description,    StateFilter("BotStates:description"))
 r_any.message.register(save_start_period,   StateFilter("BotStates:start_period"))
