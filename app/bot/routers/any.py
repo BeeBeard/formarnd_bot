@@ -55,7 +55,23 @@ async def print_expense(msg: Message, state: FSMContext):
     await msg.delete()
 
 # 2 Сохранение сумм запрос ввода адреса
-async def save_number(msg: Message, state: FSMContext):
+async def save_expense(msg: Message, state: FSMContext):
+
+    _arrival = get_int_from_str(msg.text)
+    if not _arrival:
+        await msg.delete()
+        return await print_arrival(msg, state)
+
+    await state.update_data(number=_arrival * -1)
+    data = await print_state_data(state)
+    await state.set_state(BotStates.project.state)
+    bot_msg = await msg.answer(text="Название проекта", reply_markup=BotKeyboards.no_project())
+
+    await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
+    await msg.delete()
+    await state.update_data(message_id=bot_msg.message_id)
+
+async def save_arrival(msg: Message, state: FSMContext):
 
     _arrival = get_int_from_str(msg.text)
     if not _arrival:
@@ -176,17 +192,28 @@ async def save_end_period(msg: Message, state: FSMContext):
         text = f"За указанный период транзакций нет"
         return await msg.answer(text=text)
 
+    r_any.message.register(save_arrival, StateFilter("BotStates:arrival"))
+    r_any.message.register(save_expense, StateFilter("BotStates:expense"))
     _L = []
-    _summ = 0
+    _arrival = []
+    _expense = []
+    _summ_arrival = 0
+    _summ_expense = 0
     for i, v in enumerate(dc_data):
         project = f" 🚀 {v.project}" if v.project else ""
-        _L.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username} {project} 📝 {v.description}")
-        _summ += v.number
+        if v.number > 0:
+            _arrival.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username} {project} 📝 {v.description}")
+            _summ_arrival += v.number
+        else:
+            _expense.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username} {project} 📝 {v.description}")
+            _summ_expense += v.number
 
     text = "<b>Транзакции за указанный период</b>\n"
-    text += "\n".join(_L)
-    text += "\n\n"
-    text += f"<b>Итого за указанный период: {_summ}</b>"
+    text += "\n".join(_arrival) + "\n\n" if _arrival else ""
+    text += "\n".join(_expense) + "\n\n" if _expense else ""
+    text += f"<b>Итого приход: {_summ_arrival}</b>\n"
+    text += f"<b>Итого расход: {_summ_expense}</b>\n"
+    text += f"<b>Итого за указанный период: {_summ_arrival + _summ_expense}</b>"
     await msg.answer(text=text)
 
     _users = list(set([i.id for i in dc_data]))
@@ -218,8 +245,8 @@ r_any.message.register(print_expense,   F.text == BotKeyWords.expense)
 r_any.message.register(print_info,      F.text == BotKeyWords.info)
 
 # Отработка state
-r_any.message.register(save_number,         StateFilter("BotStates:arrival"))
-r_any.message.register(save_number,         StateFilter("BotStates:expense"))
+r_any.message.register(save_arrival, StateFilter("BotStates:arrival"))
+r_any.message.register(save_expense, StateFilter("BotStates:expense"))
 r_any.message.register(save_project,        StateFilter("BotStates:project"))
 r_any.message.register(save_description,    StateFilter("BotStates:description"))
 r_any.message.register(save_start_period,   StateFilter("BotStates:start_period"))
