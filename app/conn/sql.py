@@ -12,37 +12,37 @@ from sqlalchemy.orm.decl_api import DeclarativeAttributeIntercept as Dai
 from app.conn import CONN
 from app.conn.tables import Transaction, User
 
-async_engine = CONN.async_engine
+async_engine = CONN.engine
 
 
 # Добавляем данные к выбранной таблице
-async def to_table(table: Dai = None, **kwargs) -> Union[User, bool]:
+def to_table(table: Dai = None, **kwargs) -> Union[User, bool]:
     if not table or not kwargs:
         return False
 
-    async with async_engine.connect() as session:
+    with async_engine.connect() as session:
 
         try:
             kwargs["updated"] = datetime.now()
             clear_kwargs = {i: kwargs[i] for i in kwargs if i in table.__table__.columns.keys()}  # type: ignore
             # pprint.pprint(clear_kwargs)
-            stmt = insert(table).values(**clear_kwargs)
+            stmt = insert(table).values(**clear_kwargs).prefix_with('OR REPLACE')
             # print(stmt.compile(compile_kwargs={"literal_binds": True}))
-            stmt = stmt.on_duplicate_key_update(**clear_kwargs)  # вставляем и возвращаем строку
-            await session.execute(stmt)
-            await session.commit()
+            # stmt = stmt.on_duplicate_key_update(**clear_kwargs)  # вставляем и возвращаем строку
+            session.execute(stmt)
+            session.commit()
             return True
 
         except SQLAlchemyError as e:
-            await session.rollback()
+            session.rollback()
             logger.error(e)
             return False
 
 
 # noinspection PyTypeChecker
-async def get_transaction_by_user(user_id: int, start_period: datetime, end_period: datetime) -> Union[List[Union[Transaction, User]], List]:
+def get_transaction_by_user(user_id: int, start_period: datetime, end_period: datetime) -> Union[List[Union[Transaction, User]], List]:
     """Транзакции сгруппированные по id и description"""
-    async with async_engine.connect() as session:
+    with async_engine.connect() as session:
 
         try:
             stmt = (
@@ -58,20 +58,20 @@ async def get_transaction_by_user(user_id: int, start_period: datetime, end_peri
                 )
                 .order_by(Transaction.uid)
             )
-            result = await session.execute(stmt)
+            result = session.execute(stmt)
 
             return result.all()
 
         except SQLAlchemyError as e:
-            await session.rollback()
+            session.rollback()
             logger.error(e)
             return []
 
 
 # noinspection PyTypeChecker
-async def get_transaction_info(start_period: datetime, end_period: datetime) -> Union[List[Union[Transaction, User]], List]:
+def get_transaction_info(start_period: datetime, end_period: datetime) -> Union[List[Union[Transaction, User]], List]:
     """Транзакции сгруппированные по id и description"""
-    async with async_engine.connect() as session:
+    with async_engine.connect() as session:
 
         try:
             stmt = (
@@ -88,28 +88,28 @@ async def get_transaction_info(start_period: datetime, end_period: datetime) -> 
 
             )
 
-            result = await session.execute(stmt)
+            result = session.execute(stmt)
 
             return result.all()
 
         except SQLAlchemyError as e:
-            await session.rollback()
+            session.rollback()
             logger.error(e)
             return []
 
 
-async def delete_transaction(uid: Union[int, str]) -> bool:
+def delete_transaction(uid: Union[int, str]) -> bool:
     """Транзакции сгруппированные по id и description"""
-    async with async_engine.connect() as session:
+    with async_engine.connect() as session:
 
         try:
             stmt = (delete(Transaction).filter(Transaction.uid == int(uid)))
-            await session.execute(stmt)
-            await session.commit()
+            session.execute(stmt)
+            session.commit()
             return True
 
         except SQLAlchemyError as e:
-            await session.rollback()
+            session.rollback()
             logger.error(e)
             return False
 

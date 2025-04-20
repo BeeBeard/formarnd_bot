@@ -25,7 +25,7 @@ async def cmd_delete(msg: Message) -> None:
 
     try:
         uid = msg.text.split(" ")[1]
-        result = await sql.delete_transaction(uid)
+        result = sql.delete_transaction(uid)
         text = f"Транзакция {uid} удалена" if result else f"Транзакция {uid} не найдена"
         await msg.answer(text)
         await msg.delete()
@@ -45,7 +45,7 @@ async def cmd_start(msg: Message) -> None:
         user_data = msg.from_user.model_dump(exclude_none=True)
         user_data["user_id"] = msg.from_user.id
 
-        await sql.to_table(table=tables.User, **user_data)
+        sql.to_table(table=tables.User, **user_data)
 
     except Exception as e:
         logger.error(f"Ошибка при сохранении данных пользователя: {e}")
@@ -150,7 +150,7 @@ async def after_click_cmd_yes_save(callback: CallbackQuery, state: FSMContext, t
 
     to_save = await print_state_data(state)
 
-    result = await sql.to_table(table=tables.Transaction, **to_save)
+    result = sql.to_table(table=tables.Transaction, **to_save)
     # SAVE SQL
     if result:
         await state.clear()
@@ -219,7 +219,7 @@ async def save_end_period(msg: Message, state: FSMContext):
     await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
     await state.clear()
 
-    dc_data = await sql.get_transaction_info(data["start_period"], data["end_period"])
+    dc_data = sql.get_transaction_info(data["start_period"], data["end_period"])
     if not dc_data:
         text = f"За указанный период транзакций нет"
         return await msg.answer(text=text)
@@ -253,7 +253,7 @@ async def save_end_period(msg: Message, state: FSMContext):
 
     for user in _users:
 
-        dc_data_user = await sql.get_transaction_by_user(user, data["start_period"], data["end_period"])
+        dc_data_user = sql.get_transaction_by_user(user, data["start_period"], data["end_period"])
         _L = []
         _summ = 0
         for i, v in enumerate(dc_data_user):
