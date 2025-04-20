@@ -1,7 +1,5 @@
 # Список переменный для cmd callback
 
-from typing import Union
-
 from aiogram.filters.state import State, StatesGroup
 from aiogram.types import (
     CallbackQuery,
@@ -10,11 +8,9 @@ from aiogram.types import (
     KeyboardButton,
     ReplyKeyboardMarkup
 )
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.assistant import Transform
 from app.bot import BOT
-from aiogram.fsm.context import FSMContext
 
 
 class BotCmd:

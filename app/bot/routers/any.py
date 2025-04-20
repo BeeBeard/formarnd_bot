@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 
 from app.assistant import Transform, get_int_from_str, print_state_data
 from app.bot.content import BotKeyboards, BotStates, BotCmd, BotKeyWords, BotMessages
-from app.bot.filters import IsCallCmd
+from app.bot.filters import IsCallCmd, IsBotAdmins
 from app.conn import tables, sql
 from loguru import logger
 from app.bot import BOT
@@ -13,6 +13,7 @@ from datetime import datetime
 
 
 r_any = Router(name="r_private_any")
+r_any.message.filter(IsBotAdmins())
 
 async def cmd_id(msg: Message) -> None:
     """Тестовая функция для проверки вызова функции через команду /start"""
@@ -271,17 +272,16 @@ async def save_end_period(msg: Message, state: FSMContext):
 # Отработка вводимых команд
 r_any.message.register(cmd_start,           Command("start"))
 r_any.message.register(print_info,          Command("info"))
-r_any.message.register(cmd_id,              Command("if"))
+r_any.message.register(cmd_id,              Command("id"))
 
 r_any.message.register(print_arrival,       Command("+"))
 r_any.message.register(print_expense,       Command("-"))
 r_any.message.register(cmd_delete,          Command("del"))
 
-
 # Отработка обычных кнопок
-r_any.message.register(print_arrival,   F.text == BotKeyWords.arrival)
-r_any.message.register(print_expense,   F.text == BotKeyWords.expense)
-r_any.message.register(print_info,      F.text == BotKeyWords.info)
+r_any.message.register(print_arrival,       F.text == BotKeyWords.arrival)
+r_any.message.register(print_expense,       F.text == BotKeyWords.expense)
+r_any.message.register(print_info,          F.text == BotKeyWords.info)
 
 # Отработка state
 r_any.message.register(save_arrival,        StateFilter("BotStates:arrival"))

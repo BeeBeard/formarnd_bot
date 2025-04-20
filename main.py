@@ -74,4 +74,3 @@ if __name__ == "__main__":
         logger.exception(e)
 
     logger.info(f"Выключение бота")
-

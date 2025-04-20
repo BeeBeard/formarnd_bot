@@ -30,34 +30,18 @@ class Author(ConfigBase):
 class BotConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix="tg_")
     token: SecretStr
-
-
-class DatabaseConfig(ConfigBase):
-    model_config = SettingsConfigDict(env_prefix="db_")
-
-    ip: SecretStr
-    port: int
-    name: SecretStr
-    user: SecretStr
-    password: SecretStr
-
-    dialect: str
-    async_dialect: str
-    driver: Optional[str] = ""
-
-    def pre_conn(self):  # Подготавливаем строку для создания conn
-        return (
-            f"{self.user.get_secret_value()}:{self.password.get_secret_value()}@"
-            f"{self.ip.get_secret_value()}:{self.port}/{self.name.get_secret_value()}{self.driver}"
-        )
+    users: str
 
     @computed_field
-    def async_conn(self) -> SecretStr:
-        return SecretStr(f"{self.async_dialect}://{self.pre_conn()}")
+    def user_ids(self) -> list:
 
-    @computed_field
-    def conn(self) -> SecretStr:
-        return SecretStr(f"{self.dialect}://{self.pre_conn()}")
+        if not self.users:
+            return []
+
+        _list = self.users.split(",")
+        if _list:
+            return list(map(int, _list))
+        return []
 
 
 class Config(BaseSettings):
@@ -66,7 +50,6 @@ class Config(BaseSettings):
     project: Project = Field(default_factory=Project)
     author: Author = Field(default_factory=Author)
     bot: BotConfig = Field(default_factory=BotConfig)
-    db: DatabaseConfig = Field(default_factory=DatabaseConfig)
 
     @classmethod
     def load(cls) -> "Config":
