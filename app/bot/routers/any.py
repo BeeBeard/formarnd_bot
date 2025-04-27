@@ -2,7 +2,7 @@ from aiogram import F, Router
 from aiogram.filters import Command, StateFilter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-
+from typing import Union
 from app.assistant import Transform, get_int_from_str, print_state_data
 from app.bot.content import BotKeyboards, BotStates, BotCmd, BotKeyWords, BotMessages
 from app.bot.filters import IsCallCmd, IsBotAdmins
@@ -89,10 +89,8 @@ async def save_expense(msg: Message, state: FSMContext):
 
     await state.update_data(number=_arrival * -1)
     data = await print_state_data(state)
-    # await state.set_state(BotStates.description.state)
-    # bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
-    await state.set_state(BotStates.description.state)
-    bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
+    await state.set_state(BotStates.project.state)
+    bot_msg = await msg.answer(text="Введите проект", reply_markup=BotKeyboards.no_project())
 
     await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
     await msg.delete()
@@ -109,30 +107,9 @@ async def save_arrival(msg: Message, state: FSMContext):
 
     await state.update_data(number=_arrival)
     data = await print_state_data(state)
-    # await state.set_state(BotStates.description.state)
-    # bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
-    await state.set_state(BotStates.description.state)
-    bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
-
-    await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
-    await msg.delete()
-    await state.update_data(message_id=bot_msg.message_id)
-
-
-async def after_click_cmd_no_description(callback: CallbackQuery, state: FSMContext, tform: Transform) -> None:
-    await state.update_data(project=None)
-    data = await print_state_data(state)
     await state.set_state(BotStates.project.state)
-    bot_msg = await callback.message.answer(text="Укажите проект", reply_markup=BotKeyboards.no_project())
-    await BOT.b.delete_message(chat_id=callback.message.chat.id, message_id=data["message_id"])
-    await state.update_data(message_id=bot_msg.message_id)
+    bot_msg = await msg.answer(text="Введите проект", reply_markup=BotKeyboards.no_project())
 
-# 3 Сохраняем описание
-async def save_description(msg: Message, state: FSMContext):
-    await state.update_data(description=msg.text)
-    data = await print_state_data(state)
-    await state.set_state(BotStates.project.state)
-    bot_msg = await msg.answer(text="Укажите проект", reply_markup=BotKeyboards.no_project())
     await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
     await msg.delete()
     await state.update_data(message_id=bot_msg.message_id)
@@ -142,20 +119,58 @@ async def save_description(msg: Message, state: FSMContext):
 async def save_project(msg: Message, state: FSMContext):
     await state.update_data(project=msg.text)
     data = await print_state_data(state)
-    text = BotMessages.get_final_info(f"@{msg.from_user.username}", data)
-    bot_msg = await msg.answer(text=text, reply_markup=BotKeyboards.save_ro_no_save())
+    await state.set_state(BotStates.description.state)
+    bot_msg = await msg.answer(text="Укажите описание", reply_markup=BotKeyboards.no_description())
     await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
     await msg.delete()
     await state.update_data(message_id=bot_msg.message_id)
 
+
+
 # 4 Пропускаем проект и выводим стату
 async def after_click_cmd_no_project(callback: CallbackQuery, state: FSMContext, tform: Transform) -> None:
     await state.update_data(project=None)
+
     data = await print_state_data(state)
-    text = BotMessages.get_final_info(f"@{callback.message.from_user.username}", data)
-    bot_msg = await callback.message.answer(text=text, reply_markup=BotKeyboards.save_ro_no_save())
+    await state.set_state(BotStates.description.state)
+    bot_msg = await callback.message.answer(text="Укажите описание", reply_markup=BotKeyboards.no_description())
     await BOT.b.delete_message(chat_id=callback.message.chat.id, message_id=data["message_id"])
     await state.update_data(message_id=bot_msg.message_id)
+
+
+
+
+
+async def after_click_cmd_no_description(callback: CallbackQuery, state: FSMContext, tform: Transform) -> None:
+    await state.update_data(description=None)
+    await pre_end(callback, state)
+
+
+# 3 Сохраняем описание
+async def save_description(msg: Message, state: FSMContext):
+    await state.update_data(description=msg.text)
+    await pre_end(msg, state)
+
+
+
+
+async def pre_end(cmsg: Union[Message, CallbackQuery], state: FSMContext) -> None:
+
+    message = cmsg.message if isinstance(cmsg, CallbackQuery) else cmsg
+
+    data = await print_state_data(state)
+    text = BotMessages.get_final_info(f"@{message.from_user.username}", data)
+    bot_msg = await message.answer(text=text, reply_markup=BotKeyboards.save_ro_no_save())
+    await BOT.b.delete_message(chat_id=message.chat.id, message_id=data["message_id"])
+
+    try:
+        await message.delete()
+    except Exception as e:
+        pass
+
+    await state.update_data(message_id=bot_msg.message_id)
+
+
 
 
 # 7 Сохранить или нет
@@ -182,6 +197,15 @@ async def after_click_cmd_no_save(callback: CallbackQuery, state: FSMContext, tf
 
 #  2.1 Получить информацию за период
 async def print_info(msg: Message, state: FSMContext):
+
+    try:
+        user_data = msg.from_user.model_dump(exclude_none=True)
+        user_data["user_id"] = msg.from_user.id
+
+        sql.to_table(table=tables.User, **user_data)
+
+    except Exception as e:
+        logger.error(f"Ошибка при сохранении данных пользователя: {e}")
 
     await state.set_state(BotStates.start_period.state)
     bot_msg = await msg.answer(
@@ -245,12 +269,14 @@ async def save_end_period(msg: Message, state: FSMContext):
     _summ_arrival = 0
     _summ_expense = 0
     for i, v in enumerate(dc_data):
+        print(v)
         project = f" 🚀 {v.project}" if v.project else ""
+        description = f" 📝  {v.description}" if v.description else ""
         if v.number > 0:
-            _arrival.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username} {project} 📝 {v.description}")
+            _arrival.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username}{project}{description}")
             _summ_arrival += v.number
         else:
-            _expense.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username} {project} 📝 {v.description}")
+            _expense.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username}{project}{description}")
             _summ_expense += v.number
 
     text = "<b>Транзакции за указанный период:</b>\n\n"
@@ -271,7 +297,8 @@ async def save_end_period(msg: Message, state: FSMContext):
         _summ = 0
         for i, v in enumerate(dc_data_user):
             project = f" 🚀 {v.project}" if v.project else ""
-            _L.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> {project} 📝 {v.description}")
+            description = f" 📝  {v.description}" if v.description else ""
+            _L.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> {project}{description}")
             _summ += v.number
 
             text = f"<b>👤 Транзакции @{v.username} за указанный период</b>\n\n"
@@ -298,8 +325,8 @@ r_any.message.register(print_info,          F.text == BotKeyWords.info)
 # Отработка state
 r_any.message.register(save_arrival,        StateFilter("BotStates:arrival"))
 r_any.message.register(save_expense,        StateFilter("BotStates:expense"))
-r_any.message.register(save_description,    StateFilter("BotStates:description"))
 r_any.message.register(save_project,        StateFilter("BotStates:project"))
+r_any.message.register(save_description,    StateFilter("BotStates:description"))
 
 r_any.message.register(save_start_period,   StateFilter("BotStates:start_period"))
 r_any.message.register(save_end_period,     StateFilter("BotStates:end_period"))
