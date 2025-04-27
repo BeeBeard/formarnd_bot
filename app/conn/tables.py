@@ -55,9 +55,9 @@ class Transaction (Base):  # Parent
 
     uid = mapped_column(Integer, primary_key=True, unique=True, nullable=False, index=True, autoincrement=True)
     id = mapped_column(BigInteger, nullable=False, index=True, comment='ID пользователя')
-    number = mapped_column(Integer, nullable=False, comment='Приход или расход')
+    number = mapped_column(Integer, nullable=True, comment='Приход или расход')
     project = mapped_column(String(500), nullable=True, comment='Проект')
-    description = mapped_column(String(500), nullable=False, comment='Обязательное описание')
+    description = mapped_column(String(500), nullable=False, comment='Описание')
     created: Mapped[created]
     updated: Mapped[updated]
 

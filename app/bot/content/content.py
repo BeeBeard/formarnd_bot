@@ -18,6 +18,7 @@ class BotCmd:
     no_address = "no_address"
     no_project = "no_project"
     no_comment = "no_comment"
+    no_description = "no_description"
     no_save = "no_save"
     yes_save = "yes_save"
 
@@ -66,6 +67,14 @@ class BotKeyboards:
     def no_project():
         buttons = [[
             InlineKeyboardButton(text="Не указывать проект", callback_data=Transform(cmd=BotCmd.no_project).str),
+            InlineKeyboardButton(text="Отменить ввод", callback_data=Transform(cmd=BotCmd.clear).str),
+        ]]
+        return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+    @staticmethod
+    def no_description():
+        buttons = [[
+            InlineKeyboardButton(text="Без описания", callback_data=Transform(cmd=BotCmd.no_description).str),
             InlineKeyboardButton(text="Отменить ввод", callback_data=Transform(cmd=BotCmd.clear).str),
         ]]
         return InlineKeyboardMarkup(inline_keyboard=buttons)

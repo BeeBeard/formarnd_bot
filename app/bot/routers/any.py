@@ -89,8 +89,10 @@ async def save_expense(msg: Message, state: FSMContext):
 
     await state.update_data(number=_arrival * -1)
     data = await print_state_data(state)
+    # await state.set_state(BotStates.description.state)
+    # bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
     await state.set_state(BotStates.description.state)
-    bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.get_clear())
+    bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
 
     await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
     await msg.delete()
@@ -107,13 +109,23 @@ async def save_arrival(msg: Message, state: FSMContext):
 
     await state.update_data(number=_arrival)
     data = await print_state_data(state)
+    # await state.set_state(BotStates.description.state)
+    # bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
     await state.set_state(BotStates.description.state)
-    bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.get_clear())
+    bot_msg = await msg.answer(text="Введите описание", reply_markup=BotKeyboards.no_description())
 
     await BOT.b.delete_message(chat_id=msg.chat.id, message_id=data["message_id"])
     await msg.delete()
     await state.update_data(message_id=bot_msg.message_id)
 
+
+async def after_click_cmd_no_description(callback: CallbackQuery, state: FSMContext, tform: Transform) -> None:
+    await state.update_data(project=None)
+    data = await print_state_data(state)
+    await state.set_state(BotStates.project.state)
+    bot_msg = await callback.message.answer(text="Укажите проект", reply_markup=BotKeyboards.no_project())
+    await BOT.b.delete_message(chat_id=callback.message.chat.id, message_id=data["message_id"])
+    await state.update_data(message_id=bot_msg.message_id)
 
 # 3 Сохраняем описание
 async def save_description(msg: Message, state: FSMContext):
@@ -293,10 +305,11 @@ r_any.message.register(save_start_period,   StateFilter("BotStates:start_period"
 r_any.message.register(save_end_period,     StateFilter("BotStates:end_period"))
 
 # Отработка нажатий кнопок в сообщениях
-r_any.callback_query.register(after_click_cmd_clear,        IsCallCmd(BotCmd.clear))
-r_any.callback_query.register(after_click_cmd_no_project,   IsCallCmd(BotCmd.no_project))
-r_any.callback_query.register(after_click_cmd_yes_save,     IsCallCmd(BotCmd.yes_save))
-r_any.callback_query.register(after_click_cmd_no_save,      IsCallCmd(BotCmd.no_save))
+r_any.callback_query.register(after_click_cmd_clear,            IsCallCmd(BotCmd.clear))
+r_any.callback_query.register(after_click_cmd_no_project,       IsCallCmd(BotCmd.no_project))
+r_any.callback_query.register(after_click_cmd_no_description,   IsCallCmd(BotCmd.no_description))
+r_any.callback_query.register(after_click_cmd_yes_save,         IsCallCmd(BotCmd.yes_save))
+r_any.callback_query.register(after_click_cmd_no_save,          IsCallCmd(BotCmd.no_save))
 
 
 if __name__ == '__main__':
