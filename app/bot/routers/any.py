@@ -272,11 +272,12 @@ async def save_end_period(msg: Message, state: FSMContext):
         print(v)
         project = f" 🚀 {v.project}" if v.project else ""
         description = f" 📝  {v.description}" if v.description else ""
+        name = f"@{v.username} " if v.username else f"{v.first_name} {v.last_name} "
         if v.number > 0:
-            _arrival.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username}{project}{description}")
+            _arrival.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{name}{project}{description}")
             _summ_arrival += v.number
         else:
-            _expense.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{v.username}{project}{description}")
+            _expense.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> 👤@{name}{project}{description}")
             _summ_expense += v.number
 
     text = "<b>Транзакции за указанный период:</b>\n\n"
@@ -298,10 +299,11 @@ async def save_end_period(msg: Message, state: FSMContext):
         for i, v in enumerate(dc_data_user):
             project = f" 🚀 {v.project}" if v.project else ""
             description = f" 📝  {v.description}" if v.description else ""
+            name = f"@{v.username} " if v.username else f"{v.first_name} {v.last_name} "
             _L.append(f"<b>{v.uid}</b>: <b> ₽ {v.number}</b> {project}{description}")
             _summ += v.number
 
-            text = f"<b>👤 Транзакции @{v.username} за указанный период</b>\n\n"
+            text = f"<b>👤 Транзакции @{name} за указанный период</b>\n\n"
             text += "\n".join(_L)
             text += "\n\n"
             text += f"<b>Итого за указанный период: {_summ}</b>"
