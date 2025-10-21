@@ -18,7 +18,6 @@ class Project(ConfigBase):
     info: Optional[str] = ""
     root: str
 
-
 class Author(ConfigBase):
     model_config = SettingsConfigDict(env_prefix="author_")
 
