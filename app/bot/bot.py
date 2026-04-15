@@ -55,7 +55,7 @@ class BotData:  # Данные бота
 
         connector = ProxyConnector.from_url(proxy)
 
-        session = ClientSession(connector=connector)
+        session = ClientSession(proxy=proxy)
 
         self.id = int(self.token.split(":")[0])
 
