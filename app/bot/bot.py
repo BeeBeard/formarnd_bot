@@ -71,7 +71,7 @@ class BotData:  # Данные бота
                 proxy=self.proxy
             ) as resp:
                 content = await resp.json()
-                logger.error(content)
+                print(content)
                 # content = json.loads(result.content.decode('utf8'))
                 self.title = content["result"]["first_name"]
                 self.name = content["result"]["username"]
