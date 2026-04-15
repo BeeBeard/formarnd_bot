@@ -1,18 +1,22 @@
 # Модуль парсинга, и записи базовых данных бота по его токену
 
-import re
+# from app.bot import BOT, DP
 import json
+import re
+from dataclasses import dataclass
+from typing import Union
+
 import requests
+from aiogram import Bot
+from aiogram.client.bot import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.enums.parse_mode import ParseMode
+from aiogram.types import BotCommand
+from aiohttp_socks import ProxyConnector
+from dotenv import load_dotenv
 from loguru import logger
 
-from aiogram import Bot
-from dataclasses import dataclass
-from aiogram.enums.parse_mode import ParseMode
-from aiogram.client.bot import DefaultBotProperties
-from typing import Union
-from dotenv import load_dotenv
 from app.config import CONFIG
-from aiogram.types import BotCommand
 
 load_dotenv()
 
@@ -41,9 +45,17 @@ class BotData:  # Данные бота
         return False
 
     def set_bot(self):
-        self.id: int = int(self.token.split(":")[0])  # НЕ менять привязан к БОТУ!
+        proxy = "socks5://F7f74d:6hxDPb@45.157.123.53:8000"
+
+        connector = ProxyConnector.from_url(proxy)
+
+        session = AiohttpSession(connector=connector)
+        self.session = session
+        self.id = int(self.token.split(":")[0])
+
         self.b = Bot(
             token=self.token,
+            session=self.session,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML)
         )
 
@@ -69,11 +81,13 @@ class BotData:  # Данные бота
 
 
 BOT = BotData(token=CONFIG.bot.token.get_secret_value())
+# BOT.start_bot()
+
+
+
 
 logger.info(f"Bot id: {BOT.id}")
 logger.info(f"Bot title: {BOT.title}")
 logger.info(f"Bot name: {BOT.name}")
 logger.info(f"Bot url: {BOT.url}")
 
-if __name__ == "__main__":
-    pass
