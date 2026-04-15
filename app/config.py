@@ -26,6 +26,17 @@ class Author(ConfigBase):
     email: Optional[Union[EmailStr, str]] = ""
 
 
+class ProxyConfig(ConfigBase):
+    model_config = SettingsConfigDict(env_prefix="proxy_")
+    login: str
+    password: SecretStr
+    ip: str
+    port: int
+
+    @computed_field
+    def url(self) -> str:
+        return f"socks5://{self.login}:{self.password}@{self.ip}:{self.port}"
+
 class BotConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix="tg_")
     token: SecretStr
@@ -49,6 +60,7 @@ class Config(BaseSettings):
     project: Project = Field(default_factory=Project)
     author: Author = Field(default_factory=Author)
     bot: BotConfig = Field(default_factory=BotConfig)
+    proxy: ProxyConfig = Field(default_factory=ProxyConfig)
 
     @classmethod
     def load(cls) -> "Config":

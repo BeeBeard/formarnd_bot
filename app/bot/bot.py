@@ -31,7 +31,7 @@ class BotData:  # Данные бота
     add_url: str = ""
     session = None
 
-    def __init__(self, token: str = None, proxy: str = "socks5://F7f74d:6hxDPb@45.157.123.53:8000"):
+    def __init__(self, token: str = None, proxy: str = CONFIG.proxy.url):
         self.proxy = proxy
         self.token: str = token
 
