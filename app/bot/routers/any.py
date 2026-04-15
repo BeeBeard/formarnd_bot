@@ -141,15 +141,15 @@ async def after_click_cmd_no_project(callback: CallbackQuery, state: FSMContext,
 
 
 
-async def after_click_cmd_no_description(callback: CallbackQuery, state: FSMContext, tform: Transform) -> None:
+async def after_click_cmd_no_description(callback: CallbackQuery, state: FSMContext, tform: Transform, bot_data: BotData) -> None:
     await state.update_data(description=None)
-    await pre_end(callback, state)
+    await pre_end(callback, state, bot_data)
 
 
 # 3 Сохраняем описание
-async def save_description(msg: Message, state: FSMContext):
+async def save_description(msg: Message, state: FSMContext, bot_data: BotData):
     await state.update_data(description=msg.text)
-    await pre_end(msg, state)
+    await pre_end(msg, state, bot_data)
 
 
 
