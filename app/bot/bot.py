@@ -36,8 +36,13 @@ class BotData:  # Данные бота
         self.token: str = token
 
         if self.check_token():
-            self.set_bot()
+            # self.set_bot()
             self.get_info()
+
+    async def init(self):
+        self.set_bot()
+
+
 
     def check_token(self):
         if self.token and re.findall(r'^\d{10}:[\w\W]{35}', self.token):

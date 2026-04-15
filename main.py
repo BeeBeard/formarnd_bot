@@ -7,7 +7,7 @@ from loguru import logger
 from app import start_bot
 from app.config import CONFIG
 from app.conn import CONN, tables
-
+from app.bot.bot import BotData
 
 class LogSetting:
 
@@ -58,7 +58,11 @@ async def main():
     tables.Base.metadata.create_all(CONN.engine)
 
     logger.info(f"Запуск бота")
-    await start_bot()
+    bot = BotData(token=CONFIG.bot.token.get_secret_value())
+    await bot.init()  # 👈 ВАЖНО
+
+    logger.info("Запуск бота")
+    await start_bot(bot)
 
 
 if __name__ == "__main__":
