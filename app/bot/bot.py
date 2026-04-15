@@ -29,18 +29,21 @@ class BotData:  # Данные бота
     url: str = ""
     start_url: str = ""
     add_url: str = ""
+    session = None
 
     def __init__(self, token: str = None):
 
         self.token: str = token
 
-        # if self.check_token():
-        #     # self.set_bot()
-        #     self.get_info()
 
     async def init(self):
         logger.debug(f"Запуск инициализации бота")
-        return await self.set_bot()
+        if self.check_token():
+
+            if await self.get_session():
+                await self.get_info()
+                return await self.set_bot()
+        raise ValueError(f"Не удалось запустить бота")
 
 
 
@@ -49,25 +52,27 @@ class BotData:  # Данные бота
             return True
         return False
 
-    async def set_bot(self):
-
+    async def get_session(self):
         proxy = "socks5://F7f74d:6hxDPb@45.157.123.53:8000"
         logger.debug(f"{proxy=}")
-        session = AiohttpSession(proxy=proxy)
+        self.session = AiohttpSession(proxy=proxy)
+        return self.session
+
+    async def set_bot(self):
 
         self.id = int(self.token.split(":")[0])
 
         self.b = Bot(
             token=self.token,
-            session=session,
+            session=self.session,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML)
         )
         return self
 
-    def get_info(self):
+    async def get_info(self, proxy=None):
 
         url = f"https://api.telegram.org/bot{self.token}/getMe"
-        result = requests.get(url=url)
+        result = requests.get(url=url, proxies=proxy)
         content = json.loads(result.content.decode('utf8'))
         self.title = content["result"]["first_name"]
         self.name = content["result"]["username"]
