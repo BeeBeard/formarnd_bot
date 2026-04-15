@@ -59,10 +59,12 @@ async def main():
 
     logger.info(f"Запуск бота")
     bot = BotData(token=CONFIG.bot.token.get_secret_value())
-    await bot.init()  # 👈 ВАЖНО
-
-    logger.info("Запуск бота")
-    await start_bot(bot)
+    result = await bot.init()  # 👈 ВАЖНО
+    if result.b:
+        logger.info("Старт бота")
+        await start_bot(bot)
+    else:
+        logger.error("Не удалось запустить бота")
 
 
 if __name__ == "__main__":

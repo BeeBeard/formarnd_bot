@@ -39,7 +39,8 @@ class BotData:  # Данные бота
             self.get_info()
 
     async def init(self):
-        await self.set_bot()
+        logger.debug(f"Запуск инициализации бота")
+        return await self.set_bot()
 
 
 
@@ -51,7 +52,7 @@ class BotData:  # Данные бота
     async def set_bot(self):
 
         proxy = "socks5://F7f74d:6hxDPb@45.157.123.53:8000"
-
+        logger.debug(f"{proxy=}")
         session = AiohttpSession(proxy=proxy)
 
         self.id = int(self.token.split(":")[0])
@@ -61,6 +62,7 @@ class BotData:  # Данные бота
             session=session,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML)
         )
+        return self
 
     def get_info(self):
 
