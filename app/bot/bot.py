@@ -9,9 +9,9 @@ from typing import Union
 import requests
 from aiogram import Bot
 from aiogram.client.bot import DefaultBotProperties
-from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.types import BotCommand
+from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
 from dotenv import load_dotenv
 from loguru import logger
@@ -49,18 +49,19 @@ class BotData:  # Данные бота
             return True
         return False
 
-    def set_bot(self):
+    async def set_bot(self):
+
         proxy = "socks5://F7f74d:6hxDPb@45.157.123.53:8000"
 
         connector = ProxyConnector.from_url(proxy)
 
-        session = AiohttpSession(connector=connector)
-        self.session = session
+        session = ClientSession(connector=connector)
+
         self.id = int(self.token.split(":")[0])
 
         self.b = Bot(
             token=self.token,
-            session=self.session,
+            session=session,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML)
         )
 
