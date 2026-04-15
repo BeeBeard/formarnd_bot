@@ -34,9 +34,9 @@ class BotData:  # Данные бота
 
         self.token: str = token
 
-        if self.check_token():
-            # self.set_bot()
-            self.get_info()
+        # if self.check_token():
+        #     # self.set_bot()
+        #     self.get_info()
 
     async def init(self):
         logger.debug(f"Запуск инициализации бота")
