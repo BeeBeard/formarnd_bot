@@ -71,13 +71,17 @@ class BotData:  # Данные бота
                 proxy=self.proxy
             ) as resp:
                 content = await resp.json()
-                print(content)
                 # content = json.loads(result.content.decode('utf8'))
                 self.title = content["result"]["first_name"]
                 self.name = content["result"]["username"]
                 self.url = f"https://t.me/{self.name}"  # НЕ менять привязан к БОТУ!
                 self.start_url = f"{self.url}?start="
                 self.add_url = f"t.me/{self.name}?startgroup"
+
+                logger.info(f"Bot id: {self.id}")
+                logger.info(f"Bot title: {self.title}")
+                logger.info(f"Bot name: {self.name}")
+                logger.info(f"Bot url: {self.url}")
 
     def set_commands(self) -> None:
         """Отобразить список команд для пользователя"""
@@ -90,13 +94,3 @@ class BotData:  # Данные бота
 
 
 BOT = BotData(token=CONFIG.bot.token.get_secret_value())
-# BOT.start_bot()
-
-
-
-
-logger.info(f"Bot id: {BOT.id}")
-logger.info(f"Bot title: {BOT.title}")
-logger.info(f"Bot name: {BOT.name}")
-logger.info(f"Bot url: {BOT.url}")
-
