@@ -35,7 +35,6 @@ class BotData:  # Данные бота
 
         self.token: str = token
 
-
     async def init(self):
         logger.debug(f"Запуск инициализации бота")
         if self.check_token():
@@ -69,10 +68,10 @@ class BotData:  # Данные бота
         )
         return self
 
-    async def get_info(self, proxy=None):
+    async def get_info(self):
 
         url = f"https://api.telegram.org/bot{self.token}/getMe"
-        result = requests.get(url=url, proxies=proxy)
+        result = requests.get(url=url, proxies=self.session.proxy)
         content = json.loads(result.content.decode('utf8'))
         self.title = content["result"]["first_name"]
         self.name = content["result"]["username"]
