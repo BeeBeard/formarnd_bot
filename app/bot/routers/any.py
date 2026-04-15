@@ -174,7 +174,7 @@ async def pre_end(cmsg: Union[Message, CallbackQuery], state: FSMContext, bot_da
 
 
 # 7 Сохранить или нет
-async def after_click_cmd_yes_save(callback: CallbackQuery, state: FSMContext, tform: Transform) -> None:
+async def after_click_cmd_yes_save(callback: CallbackQuery, state: FSMContext, tform: Transform, bot_data: BotData = None) -> None:
 
     to_save = await print_state_data(state)
 
@@ -182,7 +182,7 @@ async def after_click_cmd_yes_save(callback: CallbackQuery, state: FSMContext, t
     # SAVE SQL
     if result:
         await state.clear()
-        await BotKeyboards.edit_as_answered(callback, "Сохранено")
+        await BotKeyboards.edit_as_answered(callback, "Сохранено", bot_data)
         return
     await state.clear()
     await callback.message.answer(f"Не удалось сохранить транзакцию")
