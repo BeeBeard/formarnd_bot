@@ -2,6 +2,7 @@
 
 # from app.bot import BOT, DP
 import json
+import asyncio
 import re
 from dataclasses import dataclass
 from typing import Union
@@ -93,4 +94,9 @@ class BotData:  # Данные бота
         self.b.set_my_commands(commands)
 
 
-BOT = BotData(token=CONFIG.bot.token.get_secret_value())
+# BOT = BotData(token=CONFIG.bot.token.get_secret_value())
+async def pre_start():
+    _bot = BotData(token=CONFIG.bot.token.get_secret_value())
+    result = await _bot.init()  # 👈 ВАЖНО
+
+BOT = asyncio.run(pre_start())
