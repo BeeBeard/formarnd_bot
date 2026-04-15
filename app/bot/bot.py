@@ -40,7 +40,7 @@ class BotData:  # Данные бота
             self.get_info()
 
     async def init(self):
-        self.set_bot()
+        await self.set_bot()
 
 
 
