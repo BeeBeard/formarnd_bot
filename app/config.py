@@ -35,7 +35,7 @@ class ProxyConfig(ConfigBase):
 
     @computed_field
     def url(self) -> str:
-        return f"socks5://{self.login}:{self.password}@{self.ip}:{self.port}"
+        return f"socks5://{self.login}:{self.password.get_secret_value()}@{self.ip}:{self.port}"
 
 class BotConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix="tg_")
