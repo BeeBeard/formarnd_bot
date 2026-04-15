@@ -1,18 +1,16 @@
 # Модуль парсинга, и записи базовых данных бота по его токену
 
 # from app.bot import BOT, DP
-import json
-import asyncio
 import re
 from dataclasses import dataclass
 from typing import Union
-from aiohttp import ClientSession
-import requests
+
 from aiogram import Bot
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.types import BotCommand
+from aiohttp import ClientSession
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -95,8 +93,3 @@ class BotData:  # Данные бота
 
 
 # BOT = BotData(token=CONFIG.bot.token.get_secret_value())
-async def pre_start():
-    _bot = BotData(token=CONFIG.bot.token.get_secret_value())
-    result = await _bot.init()  # 👈 ВАЖНО
-
-BOT = asyncio.run(pre_start())

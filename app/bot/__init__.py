@@ -1,4 +1,4 @@
-from app.bot.bot import BOT
+# from app.bot.bot import BOT
 from app.bot.dp import DP
 
 

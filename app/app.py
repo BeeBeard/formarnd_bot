@@ -1,6 +1,6 @@
 # Модуль запуска бота
 
-from app.bot import BOT, DP
+from app.bot import DP
 
 
 # async def start_bot():
@@ -12,7 +12,7 @@ from app.bot import BOT, DP
 
 async def start_bot(bot):
     await bot.b.delete_webhook(drop_pending_updates=True)
-    await DP.start_polling(bot.b, allowed_updates=DP.resolve_used_update_types())
+    await DP.start_polling(bot.b, allowed_updates=DP.resolve_used_update_types(), bot_data=bot)
 
 if __name__ == "__main__":
     pass

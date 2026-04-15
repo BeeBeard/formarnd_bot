@@ -10,7 +10,7 @@ from aiogram.types import (
 )
 
 from app.assistant import Transform
-from app.bot import BOT
+from app.bot.bot import BotData
 
 
 class BotCmd:
@@ -102,7 +102,7 @@ class BotKeyboards:
         )
 
     @staticmethod
-    async def edit_as_answered(callback: CallbackQuery, name: str = None) -> str:
+    async def edit_as_answered(callback: CallbackQuery, name: str = None, bot_data: BotData = None) -> str:
         # Редактируем предыдущее сообщение так что остается только нажатая кнопка (callback = empty)
         await callback.answer()
 
@@ -124,7 +124,7 @@ class BotKeyboards:
                     break
         keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
-        await BOT.b.edit_message_reply_markup(
+        await bot_data.b.edit_message_reply_markup(
             chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=keyboard)
         return button_text
 
